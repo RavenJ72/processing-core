@@ -1,8 +1,10 @@
-package sasdevs.backend.models.entities;
+package com.uniedu.support.processing.models.entities;
 
+import com.uniedu.support.processing.models.baseEntities.TimestampedEntity;
+import com.uniedu.support.processing.models.enums.WorkerStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import sasdevs.backend.models.baseEntities.TimestampedEntity;
+
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 
 @Entity
 @Table(name = "users")
@@ -22,6 +25,9 @@ public class User extends TimestampedEntity {
     @Column(name = "last_name", length = 100, nullable = false)
     private String lastName;
 
+    @Column(length = 100, nullable = false)
+    private String username;
+
     @Column(name = "email", length = 50, nullable = false)
     private String email;
 
@@ -31,23 +37,22 @@ public class User extends TimestampedEntity {
     @Column(name = "image_url", length = 512)
     private String imageUrl;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
+    private String phoneNumber;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Group group;
+    private WorkerStatus isActive;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
 
-    public User(String firstName, String lastName, String email, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "worker_rooms",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "room_id")
+    )
+    private Set<Room> assignedRooms = new HashSet<>();
 }

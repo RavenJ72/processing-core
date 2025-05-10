@@ -1,4 +1,4 @@
-package sasdevs.backend.models.enums;
+package com.uniedu.support.processing.models.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UserRoleType {
-    STUDENT(1),
+    WORKER(1),
     TEACHER(2),
     ADMIN(3);
 

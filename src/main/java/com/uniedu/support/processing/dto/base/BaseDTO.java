@@ -1,4 +1,4 @@
-package sasdevs.backend.dto.base;
+package com.uniedu.support.processing.dto.base;
 
 import lombok.*;
 
@@ -8,5 +8,5 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class BaseDTO{
-    private String id;
+    private Long id;
 }

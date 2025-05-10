@@ -1,4 +1,4 @@
-package sasdevs.backend.controllers.auth.authEntities;
+package com.uniedu.support.processing.dto.authEntities;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class LoginRequest {
     @NotBlank
-    private String email;
+    private String username;
 
     @NotBlank
     private String password;

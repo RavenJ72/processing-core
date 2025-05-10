@@ -1,8 +1,9 @@
-package sasdevs.backend.models.baseEntities;
+package com.uniedu.support.processing.models.baseEntities;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 @NoArgsConstructor
@@ -12,10 +13,7 @@ import org.hibernate.annotations.UuidGenerator;
 @MappedSuperclass
 public abstract class BaseEntity {
     @Id
-    @GeneratedValue(generator = "uuid-string")
-    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
-//    @GenericGenerator(name = "uuid-string",
-//            strategy = "org.hibernate.id.UUIDGenerator")
-    private String id;
+    private Long id;
 }

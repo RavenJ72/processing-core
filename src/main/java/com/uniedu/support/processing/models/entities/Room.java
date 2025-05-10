@@ -1,4 +1,22 @@
 package com.uniedu.support.processing.models.entities;
 
-public class Room {
+import com.uniedu.support.processing.models.baseEntities.BaseEntity;
+import com.uniedu.support.processing.models.enums.RoomGroup;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Table;
+import lombok.*;
+
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "room")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Room extends BaseEntity {
+
+    private String name; // например, "101", "Аудитория 202"
+
+    private RoomGroup roomGroup;
 }

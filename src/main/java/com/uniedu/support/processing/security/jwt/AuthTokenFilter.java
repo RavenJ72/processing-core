@@ -1,12 +1,10 @@
-package sasdevs.backend.security.jwt;
+package com.uniedu.support.processing.security.jwt;
 
-import java.io.IOException;
-
+import com.uniedu.support.processing.security.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import sasdevs.backend.security.UserDetailsServiceImpl;
+
+
+import java.io.IOException;
 
 
 public class AuthTokenFilter extends OncePerRequestFilter {

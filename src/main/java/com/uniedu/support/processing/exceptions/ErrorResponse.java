@@ -1,4 +1,4 @@
-package sasdevs.backend.exceptions;  // Тот же пакет
+package com.uniedu.support.processing.exceptions;  // Тот же пакет
 
 import java.util.List;
 

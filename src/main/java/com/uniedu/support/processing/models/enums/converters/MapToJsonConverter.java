@@ -1,4 +1,4 @@
-package com.uniedu.support.processing.models.converters;
+package com.uniedu.support.processing.models.enums.converters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

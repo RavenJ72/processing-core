@@ -1,4 +1,4 @@
-package sasdevs.backend.controllers.auth.authEntities;
+package com.uniedu.support.processing.dto.authEntities;
 
 import lombok.Data;
 

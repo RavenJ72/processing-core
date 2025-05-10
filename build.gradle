@@ -1,7 +1,7 @@
 plugins {
-    id 'java'
     id 'org.springframework.boot' version '3.4.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
 }
 
 group = 'com.uniedu.support'
@@ -24,16 +24,42 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-tasks.named('test') {
-    useJUnitPlatform()
+    // База данных
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    // ModelMapper (для маппинга моделей)
+    implementation 'org.modelmapper:modelmapper:3.1.0'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    // Spring Boot DevTools (только в runtime)
+//    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Spring Boot Configuration Processor
+//    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Spring Boot Docker Compose (опционально)
+//    runtimeOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    // Валидация
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+
+    // JSON Web Token (JWT)
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Springdoc OpenAPI (для генерации документации API)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 }

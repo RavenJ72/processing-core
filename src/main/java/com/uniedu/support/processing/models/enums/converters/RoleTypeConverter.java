@@ -1,8 +1,8 @@
-package sasdevs.backend.models.enums.converters;
+package com.uniedu.support.processing.models.enums.converters;
 
+import com.uniedu.support.processing.models.enums.UserRoleType;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import sasdevs.backend.models.enums.UserRoleType;
 
 @Converter(autoApply = true)
 public class RoleTypeConverter implements AttributeConverter<UserRoleType, Integer> {

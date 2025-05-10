@@ -1,13 +1,14 @@
-package sasdevs.backend.controllers.auth;
+package com.uniedu.support.processing.web.auth;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.uniedu.support.processing.models.entities.User;
+import com.uniedu.support.processing.repositories.UserRepository;
+import com.uniedu.support.processing.security.jwt.JwtUtils;
+import com.uniedu.support.processing.dto.authEntities.JwtResponse;
+import com.uniedu.support.processing.dto.authEntities.LoginRequest;
+import com.uniedu.support.processing.dto.authEntities.MessageResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,20 +16,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import sasdevs.backend.controllers.auth.authEntities.JwtResponse;
-import sasdevs.backend.controllers.auth.authEntities.LoginRequest;
-import sasdevs.backend.controllers.auth.authEntities.MessageResponse;
-import sasdevs.backend.controllers.auth.authEntities.SignUpRequest;
-import sasdevs.backend.dto.standard.UserDTO;
-import sasdevs.backend.models.entities.Role;
-import sasdevs.backend.models.entities.User;
-import sasdevs.backend.models.enums.UserRoleType;
-import sasdevs.backend.repositories.UserRepository;
-import sasdevs.backend.security.jwt.JwtUtils;
-import sasdevs.backend.services.interfaces.UserService;
 
+import java.util.List;
+import java.util.stream.Collectors;
+@Slf4j
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -37,16 +29,13 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
-    private final PasswordEncoder passwordEncoder;
-    private final UserService<String> userService;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
@@ -56,34 +45,11 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
 
         return ResponseEntity.ok(new JwtResponse(jwt,
-                user.getId(),user.getEmail(),roles));
+                user.getId(),user.getUsername(),roles));
 
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
-        }
-
-        UserDTO testUser = UserDTO.builder()
-                .firstName(signUpRequest.getFirstName())
-                .lastName(signUpRequest.getLastName())
-                .email(signUpRequest.getEmail())
-                .password(passwordEncoder.encode(signUpRequest.getPassword()))
-                .isActive(true)
-                .roles(Set.of(new Role(UserRoleType.TEACHER)))
-                .build();
-
-        userService.createUser(testUser);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
     @PostMapping("/logout")

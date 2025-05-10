@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # --- PostgreSQL ---
   postgres:
     image: postgres:15
     container_name: postgres-db
@@ -11,14 +12,43 @@ services:
       POSTGRES_PASSWORD: root
     ports:
       - "5432:5432"
+
+  # --- Elasticsearch ---
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+
+  # --- Kibana ---
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.4
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+
+  # --- Logstash ---
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.13.4
+    container_name: logstash
+    ports:
+      - "5044:5044" # для Logstash TCP input
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - uniedu-network
-
-volumes:
-  postgres_data:
-
-networks:
-  uniedu-network:
-    driver: bridge
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch

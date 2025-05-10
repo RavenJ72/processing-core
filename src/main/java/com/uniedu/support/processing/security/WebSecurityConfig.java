@@ -1,5 +1,7 @@
-package sasdevs.backend.security;
+package com.uniedu.support.processing.security;
 
+import com.uniedu.support.processing.security.jwt.AuthEntryPointJwt;
+import com.uniedu.support.processing.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import sasdevs.backend.security.jwt.AuthEntryPointJwt;
-import sasdevs.backend.security.jwt.AuthTokenFilter;
+
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package sasdevs.backend.controllers.auth;
+package com.uniedu.support.processing.web.auth;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,14 +16,14 @@ public class AccessController {
         return "Public Content.";
     }
 
-    @GetMapping("/user")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @GetMapping("/worker")
+    @PreAuthorize("hasRole('WORKER') or hasRole('TEACHER') or hasRole('ADMIN')")
     public String userAccess() {
         return "User Content.";
     }
 
-    @GetMapping("/mod")
-    @PreAuthorize("hasRole('MODERATOR')")
+    @GetMapping("/teacher")
+    @PreAuthorize("hasRole('TEACHER')")
     public String moderatorAccess() {
         return "Moderator Board.";
     }

@@ -1,11 +1,11 @@
-package sasdevs.backend.models.entities;
+package com.uniedu.support.processing.models.entities;
 
+import com.uniedu.support.processing.models.baseEntities.BaseEntity;
+import com.uniedu.support.processing.models.enums.UserRoleType;
+import com.uniedu.support.processing.models.enums.converters.RoleTypeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
-import sasdevs.backend.models.enums.converters.RoleTypeConverter;
-import sasdevs.backend.models.enums.UserRoleType;
-import sasdevs.backend.models.baseEntities.BaseEntity;
 
 @Getter
 @Setter
