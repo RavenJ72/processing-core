@@ -5,8 +5,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "worker_schedule")
 @Data
@@ -19,9 +21,8 @@ public class WorkerSchedule extends BaseEntity {
     @JoinColumn(name = "worker_id", nullable = false)
     private User worker;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "day_of_week", nullable = false)
-    private DayOfWeek dayOfWeek; // java.time.DayOfWeek (MONDAY, TUESDAY, ...)
+    @Column(name = "shift_date", nullable = false)
+    private LocalDate date;
 
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;

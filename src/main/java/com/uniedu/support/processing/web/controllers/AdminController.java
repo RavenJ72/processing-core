@@ -1,5 +1,11 @@
 package com.uniedu.support.processing.web.controllers;
 
+import com.uniedu.support.processing.dto.schedule.GroupedRoomScheduleResponse;
+import com.uniedu.support.processing.dto.schedule.ScheduleUpdateDto;
+import com.uniedu.support.processing.dto.standart.UserDto;
+import com.uniedu.support.processing.models.enums.UserRoleType;
+import com.uniedu.support.processing.services.implementations.ScheduleService;
+import com.uniedu.support.processing.services.implementations.UserServiceImpl;
 import com.uniedu.support.processing.services.interfaces.UserService;
 import com.uniedu.support.processing.dto.authEntities.SignUpRequest;
 import jakarta.validation.Valid;
@@ -11,20 +17,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/admin")
 public class AdminController {
 
     private final UserService<Long> userService;
+    private final ScheduleService scheduleService;
+    private final UserServiceImpl userServiceImpl;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
@@ -37,4 +43,28 @@ public class AdminController {
                 .status(HttpStatus.CREATED)
                 .body(userService.createUser(signUpRequest, userDetails));
     }
+
+    @GetMapping("/grouped-room-schedules")
+    public ResponseEntity<List<GroupedRoomScheduleResponse>> getGroupedRoomSchedules(
+            @RequestParam(value = "nextWeek", defaultValue = "false") boolean nextWeek){
+
+        List<GroupedRoomScheduleResponse> schedules = scheduleService.getGroupedRoomSchedulesForWeek(nextWeek);
+        return ResponseEntity.ok(schedules);
+    }
+
+    @PutMapping("/update-schedule")
+    public ResponseEntity<Void> updateSchedule(
+            @RequestBody ScheduleUpdateDto updateDto,
+            @RequestHeader("Authorization") String token) {
+        scheduleService.updateSchedule(updateDto, token);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/workers")
+    public ResponseEntity<List<UserDto>> getWorkers(){
+        return ResponseEntity.ok(userServiceImpl.findAllByRoleAsc(UserRoleType.WORKER));
+    }
+
+
+
 }

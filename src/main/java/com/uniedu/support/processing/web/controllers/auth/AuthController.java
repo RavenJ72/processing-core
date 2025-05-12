@@ -1,4 +1,4 @@
-package com.uniedu.support.processing.web.auth;
+package com.uniedu.support.processing.web.controllers.auth;
 
 import com.uniedu.support.processing.models.entities.User;
 import com.uniedu.support.processing.repositories.UserRepository;

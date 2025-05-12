@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>Чат</h2>
+<div>
+    <label>JWT Token: <input type="text" id="jwtToken" style="width: 400px;"></label><br>
+    <label>Chat ID: <input type="text" id="chatId" value="1"></label><br>
+    <label>Sender ID: <input type="text" id="senderId" value="1"></label><br>
+    <label>Receiver ID: <input type="text" id="receiverId" value="2"></label><br>
+    <label>Сообщение: <input type="text" id="messageText"></label>
+    <button onclick="sendMessage()">Отправить</button>
+    <button onclick="connect()">Подключиться</button>
+</div>
+
+<hr>
+<div id="chatArea" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto;"></div>
+
+<script>
+    let stompClient = null;
+
+    async function connect() {
+        const chatId = document.getElementById('chatId').value;
+        const token = document.getElementById('jwtToken').value;
+
+        // Загрузить историю
+        await loadHistory(chatId, token);
+
+        // Подключение к WebSocket
+        const socket = new SockJS('http://localhost:8080/ws-chat');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({Authorization: `Bearer ${token}`}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            stompClient.subscribe(`/topic/chat.${chatId}`, function (messageOutput) {
+                const message = JSON.parse(messageOutput.body);
+                showMessage(message);
+            });
+        });
+    }
+
+    async function loadHistory(chatId, token) {
+        try {
+            const response = await fetch(`http://localhost:8080/api/chat-messages/${chatId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка загрузки сообщений: ${response.status}`);
+            }
+
+            const messages = await response.json();
+            messages.forEach(msg => showMessage(msg));
+        } catch (error) {
+            console.error("Ошибка загрузки истории:", error);
+        }
+    }
+
+    function sendMessage() {
+        const chatId = document.getElementById('chatId').value;
+        const senderId = document.getElementById('senderId').value;
+        const receiverId = document.getElementById('receiverId').value;
+        const content = document.getElementById('messageText').value;
+
+        const message = {
+            chatId: chatId,
+            senderId: senderId,
+            receiverId: receiverId,
+            content: content
+        };
+
+        stompClient.send("/app/chat.send", {}, JSON.stringify(message));
+        document.getElementById('messageText').value = '';
+    }
+
+    function showMessage(message) {
+        const area = document.getElementById('chatArea');
+        const text = `[${message.sentAt || 'now'}] ${message.senderId} → ${message.receiverId}: ${message.content}`;
+        area.textContent += text + '\n';
+        area.scrollTop = area.scrollHeight;
+    }
+</script>
+</body>
+</html>

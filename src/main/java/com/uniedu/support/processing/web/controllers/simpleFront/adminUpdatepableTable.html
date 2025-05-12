@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание (редактируемое)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .schedule-container {
+            display: flex;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .room-group {
+            margin-right: 20px;
+            min-width: 200px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .room-group h3 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .room-numbers {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        table {
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            min-width: 600px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: center;
+            position: relative;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .time-column {
+            font-weight: bold;
+            background-color: #f8f8f8;
+        }
+        .editable-cell {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .editable-cell:hover {
+            background-color: #e3f2fd;
+        }
+        .empty-cell {
+            color: #bdc3c7;
+        }
+        .jwt-container {
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        #jwtToken {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #loadScheduleButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        #loadScheduleButton:hover {
+            background-color: #2980b9;
+        }
+        #weekToggle {
+            margin-left: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        #workerSelect {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        #saveWorkerBtn {
+            padding: 8px 16px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #saveWorkerBtn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+<h1>Расписание (редактируемое)</h1>
+
+<div class="jwt-container">
+    <label for="jwtToken">JWT токен:</label>
+    <input type="text" id="jwtToken" placeholder="Введите JWT токен">
+</div>
+
+<div>
+    <label for="weekToggle">Показать следующую неделю:</label>
+    <input type="checkbox" id="weekToggle">
+    <button id="loadScheduleButton">Загрузить расписание</button>
+</div>
+
+<div id="scheduleContainer"></div>
+
+<!-- Модальное окно для выбора работника -->
+<div id="workerModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Выберите работника</h3>
+        <select id="workerSelect"></select>
+        <button id="saveWorkerBtn">Сохранить</button>
+    </div>
+</div>
+
+<script>
+    // Глобальные переменные для хранения текущего контекста редактирования
+    let currentEditingCell = null;
+    let currentRoomId = null;
+    let currentTimeSlot = null;
+    let currentDayOfWeek = null;
+    let workersList = [];
+
+    document.getElementById('loadScheduleButton').addEventListener('click', function() {
+        loadSchedule();
+    });
+
+    // Закрытие модального окна
+    document.querySelector('.close').addEventListener('click', function() {
+        document.getElementById('workerModal').style.display = 'none';
+    });
+
+    // Обработчик сохранения работника
+    document.getElementById('saveWorkerBtn').addEventListener('click', function() {
+        const workerId = document.getElementById('workerSelect').value;
+        updateScheduleOnServer(workerId);
+        document.getElementById('workerModal').style.display = 'none';
+    });
+
+    function loadSchedule() {
+        const jwtToken = document.getElementById('jwtToken').value;
+        const nextWeek = document.getElementById('weekToggle').checked;
+
+        if (!jwtToken) {
+            alert("Пожалуйста, введите JWT токен.");
+            return;
+        }
+
+        // Загружаем список работников
+        fetchWorkers(jwtToken).then(() => {
+            // Затем загружаем расписание
+            fetch(`http://localhost:8080/api/admin/grouped-room-schedules?nextWeek=${nextWeek}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    renderSchedule(data);
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке расписания:', error);
+                });
+        });
+    }
+
+    function fetchWorkers(jwtToken) {
+        return fetch('http://localhost:8080/api/admin/workers', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                workersList = data;
+                // Заполняем select в модальном окне
+                const select = document.getElementById('workerSelect');
+                select.innerHTML = '';
+
+                // Добавляем пустой вариант для очистки
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = '-- Очистить --';
+                select.appendChild(emptyOption);
+
+                // Добавляем всех работников
+                data.forEach(worker => {
+                    const option = document.createElement('option');
+                    option.value = worker.id;
+                    option.textContent = `${worker.lastName} ${worker.firstName}`;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке списка работников:', error);
+            });
+    }
+
+    function renderSchedule(data) {
+        const container = document.getElementById('scheduleContainer');
+        container.innerHTML = '';
+
+        const daysOrder = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
+        const dayNames = {
+            'MONDAY': 'пн',
+            'TUESDAY': 'вт',
+            'WEDNESDAY': 'ср',
+            'THURSDAY': 'чт',
+            'FRIDAY': 'пт'
+        };
+
+        const timeSlotsOrder = [
+            '08:30 - 09:50',
+            '10:05 - 11:25',
+            '11:40 - 13:00',
+            '13:45 - 15:05',
+            '15:20 - 16:40',
+            '16:55 - 18:15',
+            '18:30 - 19:50',
+            '20:00 - 21:20'
+        ];
+
+        data.forEach(group => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'schedule-container';
+
+            const roomGroupDiv = document.createElement('div');
+            roomGroupDiv.className = 'room-group';
+
+            const groupTitle = document.createElement('h3');
+            groupTitle.textContent = group.roomGroup;
+            roomGroupDiv.appendChild(groupTitle);
+
+            const roomNumbersDiv = document.createElement('div');
+            roomNumbersDiv.className = 'room-numbers';
+
+            const roomNumbers = group.schedules.map(schedule => schedule.roomNumber).join(', ');
+            roomNumbersDiv.textContent = roomNumbers;
+            roomGroupDiv.appendChild(roomNumbersDiv);
+
+            groupDiv.appendChild(roomGroupDiv);
+
+            const table = document.createElement('table');
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            const timeHeader = document.createElement('th');
+            timeHeader.textContent = 'Время';
+            headerRow.appendChild(timeHeader);
+
+            daysOrder.forEach(day => {
+                const dayHeader = document.createElement('th');
+                dayHeader.textContent = dayNames[day];
+                headerRow.appendChild(dayHeader);
+            });
+
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+
+            timeSlotsOrder.forEach(timeSlot => {
+                const row = document.createElement('tr');
+
+                const timeCell = document.createElement('td');
+                timeCell.className = 'time-column';
+                timeCell.textContent = timeSlot;
+                row.appendChild(timeCell);
+
+                daysOrder.forEach(day => {
+                    const dayCell = document.createElement('td');
+                    dayCell.className = 'editable-cell';
+
+                    // Находим первого работника в этом временном слоте и дне недели
+                    let workerName = null;
+                    let workerId = null;
+                    let roomId = null;
+
+                    for (const schedule of group.schedules) {
+                        if (schedule.timeSlots[timeSlot] && schedule.timeSlots[timeSlot].workersByDay[day]) {
+                            workerName = schedule.timeSlots[timeSlot].workersByDay[day];
+                            workerId = findWorkerIdByName(workerName);
+                            roomId = schedule.roomId;
+                            break;
+                        }
+                    }
+
+                    if (workerName) {
+                        dayCell.textContent = workerName;
+                    } else {
+                        dayCell.textContent = '';
+                        dayCell.classList.add('empty-cell');
+                    }
+
+                    // Добавляем обработчик клика
+                    dayCell.addEventListener('click', function() {
+                        currentEditingCell = dayCell;
+                        currentRoomId = roomId || group.schedules[0].roomId; // Берем первый кабинет в группе, если не нашли
+                        currentTimeSlot = timeSlot;
+                        currentDayOfWeek = day;
+
+                        // Показываем модальное окно
+                        document.getElementById('workerModal').style.display = 'block';
+
+                        // Устанавливаем текущего работника, если есть
+                        if (workerId) {
+                            document.getElementById('workerSelect').value = workerId;
+                        } else {
+                            document.getElementById('workerSelect').value = '';
+                        }
+                    });
+
+                    row.appendChild(dayCell);
+                });
+
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+            groupDiv.appendChild(table);
+            container.appendChild(groupDiv);
+        });
+    }
+
+    function findWorkerIdByName(name) {
+        if (!name) return null;
+        const worker = workersList.find(w =>
+            `${w.lastName} ${w.firstName.charAt(0)}.` === name ||
+            `${w.lastName} ${w.firstName}` === name
+        );
+        return worker ? worker.id : null;
+    }
+
+    function updateScheduleOnServer(workerId) {
+        const jwtToken = document.getElementById('jwtToken').value;
+
+        if (!jwtToken) {
+            alert("Токен не найден. Пожалуйста, авторизуйтесь.");
+            return;
+        }
+
+        // Получаем group из текущего контекста (добавьте это в глобальные переменные)
+        const currentRoomGroup = document.querySelector('.room-group h3').textContent;
+
+        const updateDto = {
+            roomGroup: currentRoomGroup,  // Отправляем группу вместо roomId
+            timeSlot: currentTimeSlot,
+            dayOfWeek: currentDayOfWeek,
+            workerId: workerId || null
+        };
+
+        fetch('http://localhost:8080/api/admin/update-schedule', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateDto)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Обновляем ВСЕ ячейки в этой группе для данного временного слота и дня
+                    updateAllCellsInGroup(currentRoomGroup, currentTimeSlot, currentDayOfWeek, workerId);
+                    alert("Расписание успешно обновлено для всей группы кабинетов!");
+                } else {
+                    throw new Error('Ошибка при обновлении расписания');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert("Произошла ошибка при обновлении расписания");
+            });
+    }
+
+    function updateAllCellsInGroup(roomGroup, timeSlot, dayOfWeek, workerId) {
+        const worker = workerId ? workersList.find(w => w.id == workerId) : null;
+        const displayName = worker ? `${worker.lastName} ${worker.firstName.charAt(0)}.` : '';
+
+        // Находим все ячейки в этой группе для данного времени и дня
+        const groupDiv = Array.from(document.querySelectorAll('.room-group h3'))
+            .find(h3 => h3.textContent === roomGroup)
+            .closest('.schedule-container');
+
+        const timeCells = groupDiv.querySelectorAll('td.time-column');
+        timeCells.forEach(timeCell => {
+            if (timeCell.textContent === timeSlot) {
+                const row = timeCell.parentElement;
+                const dayIndex = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'].indexOf(dayOfWeek);
+                const dayCell = row.children[dayIndex + 1]; // +1 потому что первый столбец - время
+
+                dayCell.textContent = displayName;
+                if (displayName) {
+                    dayCell.classList.remove('empty-cell');
+                } else {
+                    dayCell.classList.add('empty-cell');
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

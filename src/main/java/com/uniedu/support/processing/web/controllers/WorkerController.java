@@ -31,7 +31,7 @@ public class WorkerController {
 
     @PreAuthorize("hasRole('WORKER')")
     @GetMapping("/changeStatus/{status}")
-    public ResponseEntity<?> completeTicket(@PathVariable WorkerStatus status) {
+    public ResponseEntity<?> changeWorkerStatus(@PathVariable WorkerStatus status) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();

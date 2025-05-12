@@ -5,9 +5,15 @@ import com.uniedu.support.processing.models.entities.Chat;
 import com.uniedu.support.processing.models.entities.User;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Builder
 public class ChatMessageDto extends BaseDTO {
     private String content;
 
@@ -15,9 +21,9 @@ public class ChatMessageDto extends BaseDTO {
 
     private Boolean isRead;
 
-    private UserDto sender;
+    private Long senderId;
 
-    private UserDto receiver;
+    private Long receiverId;
 
-    private ChatDto chat;
+    private Long chatId;
 }

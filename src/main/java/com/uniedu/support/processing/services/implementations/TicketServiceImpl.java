@@ -30,8 +30,7 @@ public class TicketServiceImpl implements TicketService<Long> {
     private final TicketRepository ticketRepository;
     private final ModelMapper modelMapper;
     private final RoomRepository roomRepository;
-    private final ChatRepository chatRepository;
-    private final UserServiceImpl userServiceImpl;
+
 
     @Override
     public TicketDto getTicketById(Long id) {
@@ -46,16 +45,6 @@ public class TicketServiceImpl implements TicketService<Long> {
     @Override
     public List<TicketDto> getAllActiveTicketsAssignedOnWorkerByWorkerId(Long id) {
         return ticketRepository.findByStatusAndAssignedToId(TicketStatus.IN_PROGRESS, id).stream().map(e-> modelMapper.map(e, TicketDto.class)).toList();
-    }
-
-    @Override
-    public TicketDto createTicket(CreateTicketDto createTicketDto) {
-
-        Ticket ticket = modelMapper.map(createTicketDto, Ticket.class);
-        ticket.setChat(new Chat());
-        ticket.setAssignedTo(userServiceImpl.getActiveUserForTicketAssigmentByRoomName(createTicketDto.getRoomName()));
-
-        return modelMapper.map(ticketRepository.save(ticket), TicketDto.class);
     }
 
     @Override
@@ -87,28 +76,5 @@ public class TicketServiceImpl implements TicketService<Long> {
 
         return modelMapper.map(ticketRepository.save(ticket), TicketDto.class);
     }
-
-    @Override
-    public void changeTicketStatusById(TicketStatus ticketStatus, Long id) {
-        Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Ticket not found with id: " + id
-                ));
-        ticket.setStatus(ticketStatus);
-        ticketRepository.save(ticket);
-    }
-
-    @Override
-    public void closeTicket(Long id) {
-        Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Ticket not found with id: " + id
-                ));
-        ticket.setStatus(TicketStatus.CLOSED);
-        ticketRepository.save(ticket);
-    }
-
 
 }

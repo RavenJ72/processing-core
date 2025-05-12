@@ -16,5 +16,5 @@ public interface UserService<ID> {
     UserDto getUserByUsername(String username);
 
     List<UserDto> findAllByRoleAsc(UserRoleType role);
-    User getActiveUserForTicketAssigmentByRoomName(String roomName);
+    User getUserForTicketAssigmentByRoomName(String roomName);
 }

@@ -48,7 +48,7 @@ public class User extends TimestampedEntity {
     private Set<Role> roles = new HashSet<>();
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "worker_rooms",
             joinColumns = @JoinColumn(name = "user_id"),

@@ -10,8 +10,5 @@ import java.util.List;
 public interface TicketService<ID> {
     TicketDto getTicketById(ID id);
     List<TicketDto> getAllActiveTicketsAssignedOnWorkerByWorkerId(Long id);
-    TicketDto createTicket(CreateTicketDto ticketDto);
     TicketDto updateTicket(TicketUpdateDto ticketDto);
-    void changeTicketStatusById(TicketStatus ticketStatus, Long id);
-    void closeTicket(Long id);
 }

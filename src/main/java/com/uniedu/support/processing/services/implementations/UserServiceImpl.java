@@ -31,7 +31,6 @@ public class UserServiceImpl implements UserService<Long> {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-    private final TicketRepository ticketRepository;
     private final WorkerScheduleRepository workerScheduleRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -83,20 +82,19 @@ public class UserServiceImpl implements UserService<Long> {
         return null;
     }
 
-
     @Override
     public List<UserDto> findAllByRoleAsc(UserRoleType role) {
-        return List.of();
+        return userRepository.findByRoleType(role).stream().map(user -> modelMapper.map(user, UserDto.class)).toList();
     }
 
     @Override
-    public User getActiveUserForTicketAssigmentByRoomName(String roomName) {
+    public User getUserForTicketAssigmentByRoomName(String roomName) {
         val room = roomRepository.findByName(roomName);
         val activeUser = userRepository.findAllByIsActive(WorkerStatus.ACTIVE).stream().filter(e -> e.getAssignedRooms().contains(room)).findFirst();
        if(activeUser.isPresent()){
            return activeUser.get();
        }else{
-           DayOfWeek today = LocalDate.now().getDayOfWeek();
+           LocalDate today = LocalDate.now();
            LocalTime now = LocalTime.now();
            Optional<User> activeWorkerBySchedule = workerScheduleRepository.findScheduledWorkers(today, now).stream().filter(worker -> worker.getAssignedRooms().contains(room)).findFirst();
            return activeWorkerBySchedule.orElseThrow();

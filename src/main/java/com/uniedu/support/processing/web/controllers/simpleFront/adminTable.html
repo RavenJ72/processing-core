@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .schedule-container {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .room-group {
+            margin-right: 20px;
+            min-width: 150px;
+        }
+
+        .room-group h3 {
+            margin-bottom: 5px;
+        }
+
+        .room-numbers {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .time-column {
+            font-weight: bold;
+            background-color: #f8f8f8;
+        }
+
+        input[type="checkbox"] {
+            margin: 10px 0;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .jwt-container {
+            margin-bottom: 20px;
+        }
+
+        #jwtToken {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #loadScheduleButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Расписание</h1>
+
+<!-- Поле для ввода JWT токена -->
+<div class="jwt-container">
+    <label for="jwtToken">Введите JWT токен:</label>
+    <input type="text" id="jwtToken" placeholder="JWT токен">
+</div>
+
+<div>
+    <label for="weekToggle">Показывать следующую неделю?</label>
+    <input type="checkbox" id="weekToggle">
+</div>
+
+<!-- Кнопка для загрузки расписания -->
+<button id="loadScheduleButton">Загрузить расписание</button>
+
+<div id="scheduleContainer"></div>
+
+<script>
+    document.getElementById('loadScheduleButton').addEventListener('click', function() {
+        loadSchedule();
+    });
+
+    function loadSchedule() {
+        const jwtToken = document.getElementById('jwtToken').value;
+        const nextWeek = document.getElementById('weekToggle').checked;
+
+        if (!jwtToken) {
+            alert("Пожалуйста, введите JWT токен.");
+            return;
+        }
+
+        fetch(`http://localhost:8080/api/admin/grouped-room-schedules?nextWeek=${nextWeek}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                renderSchedule(data);
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке расписания:', error);
+            });
+    }
+
+    function renderSchedule(data) {
+        const container = document.getElementById('scheduleContainer');
+        container.innerHTML = ''; // Очистить контейнер перед обновлением
+
+        // Определяем порядок дней недели
+        const daysOrder = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
+        const dayNames = {
+            'MONDAY': 'пн',
+            'TUESDAY': 'вт',
+            'WEDNESDAY': 'ср',
+            'THURSDAY': 'чт',
+            'FRIDAY': 'пт'
+        };
+
+        // Определяем временные слоты в правильном порядке
+        const timeSlotsOrder = [
+            '08:30 - 09:50',
+            '10:05 - 11:25',
+            '11:40 - 13:00',
+            '13:45 - 15:05',
+            '15:20 - 16:40',
+            '16:55 - 18:15',
+            '18:30 - 19:50',
+            '20:00 - 21:20'
+        ];
+
+        data.forEach(group => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'schedule-container';
+
+            // Создаем блок с группой кабинетов
+            const roomGroupDiv = document.createElement('div');
+            roomGroupDiv.className = 'room-group';
+
+            const groupTitle = document.createElement('h3');
+            groupTitle.textContent = group.roomGroup;
+            roomGroupDiv.appendChild(groupTitle);
+
+            const roomNumbersDiv = document.createElement('div');
+            roomNumbersDiv.className = 'room-numbers';
+
+            // Собираем все номера кабинетов в группе
+            const roomNumbers = group.schedules.map(schedule => schedule.roomNumber).join(', ');
+            roomNumbersDiv.textContent = roomNumbers;
+            roomGroupDiv.appendChild(roomNumbersDiv);
+
+            groupDiv.appendChild(roomGroupDiv);
+
+            // Создаем таблицу расписания
+            const table = document.createElement('table');
+
+            // Создаем заголовок таблицы
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            const timeHeader = document.createElement('th');
+            timeHeader.textContent = 'Время';
+            headerRow.appendChild(timeHeader);
+
+            // Добавляем заголовки дней недели
+            daysOrder.forEach(day => {
+                const dayHeader = document.createElement('th');
+                dayHeader.textContent = dayNames[day];
+                headerRow.appendChild(dayHeader);
+            });
+
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Создаем тело таблицы
+            const tbody = document.createElement('tbody');
+
+            // Для каждого временного слота создаем строку
+            timeSlotsOrder.forEach(timeSlot => {
+                const row = document.createElement('tr');
+
+                // Ячейка с временем
+                const timeCell = document.createElement('td');
+                timeCell.className = 'time-column';
+                timeCell.textContent = timeSlot;
+                row.appendChild(timeCell);
+
+                // Для каждого дня недели добавляем ячейку с именем
+                daysOrder.forEach(day => {
+                    const dayCell = document.createElement('td');
+
+                    // Находим первого работника в этом временном слоте и дне недели
+                    let workerName = null;
+                    for (const schedule of group.schedules) {
+                        if (schedule.timeSlots[timeSlot] && schedule.timeSlots[timeSlot].workersByDay[day]) {
+                            workerName = schedule.timeSlots[timeSlot].workersByDay[day];
+                            break; // Берем первого найденного работника
+                        }
+                    }
+
+                    dayCell.textContent = workerName || '';
+                    row.appendChild(dayCell);
+                });
+
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+            groupDiv.appendChild(table);
+            container.appendChild(groupDiv);
+        });
+    }
+</script>
+</body>
+</html>
