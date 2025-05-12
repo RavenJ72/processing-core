@@ -1,6 +1,7 @@
 package com.uniedu.support.processing.models.entities;
 
 import com.uniedu.support.processing.models.baseEntities.BaseEntity;
+import com.uniedu.support.processing.models.baseEntities.TimestampedEntity;
 import com.uniedu.support.processing.models.enums.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Ticket extends BaseEntity {
+public class Ticket extends TimestampedEntity {
 
     private String title;
 

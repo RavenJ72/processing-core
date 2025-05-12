@@ -1,13 +1,16 @@
 package com.uniedu.support.processing.dto.standart;
 
+import com.uniedu.support.processing.dto.base.BaseDTO;
 import com.uniedu.support.processing.dto.base.TimestampedDTO;
 import com.uniedu.support.processing.models.enums.TicketStatus;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class TicketDto extends TimestampedDTO {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TicketDto extends BaseDTO {
 
     private String title;
 

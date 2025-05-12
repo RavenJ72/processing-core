@@ -1,6 +1,7 @@
 package com.uniedu.support.processing.services.implementations;
 
 import com.uniedu.support.processing.dto.standart.CreateTicketDto;
+import com.uniedu.support.processing.dto.standart.RoomDto;
 import com.uniedu.support.processing.dto.standart.TicketDto;
 import com.uniedu.support.processing.dto.standart.TicketUpdateDto;
 import com.uniedu.support.processing.exceptions.RoomNotFoundException;
@@ -77,4 +78,8 @@ public class TicketServiceImpl implements TicketService<Long> {
         return modelMapper.map(ticketRepository.save(ticket), TicketDto.class);
     }
 
+    @Override
+    public List<RoomDto> getAvailableRooms() {
+        return roomRepository.findAll().stream().map(room -> RoomDto.builder().roomGroup(room.getRoomGroup()).name(room.getName()).build()).toList();
+    }
 }

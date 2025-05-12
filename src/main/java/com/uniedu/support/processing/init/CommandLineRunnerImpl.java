@@ -36,9 +36,6 @@ public class CommandLineRunnerImpl implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        notificationService.sendNewMessageNotification("12L", "12L", 12L);
-
-
         log.info("Starting processing...");
 
         // Создание ролей

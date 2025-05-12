@@ -50,6 +50,16 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return;
         }
 
+// ✅ Пропустить фильтр для swagger и авторизации
+        if (requestURI.startsWith("/v3/api-docs/") ||
+                requestURI.startsWith("/swagger-ui/") ||
+                requestURI.startsWith("/swagger-resources/") ||
+                requestURI.startsWith("/webjars/") ||
+                requestURI.startsWith("/v3/")){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {

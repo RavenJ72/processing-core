@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByStatusAndAssignedToId(TicketStatus status, Long assignedToId);
+    List<Ticket> findByStatusAndCreatorId(TicketStatus status, Long creatorId);
     Optional<Ticket> findByChatId(Long chatId);
 
 

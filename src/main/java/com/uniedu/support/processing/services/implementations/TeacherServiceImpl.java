@@ -1,12 +1,15 @@
 package com.uniedu.support.processing.services.implementations;
 
 import com.uniedu.support.processing.dto.createRequests.TicketCreateRequest;
+import com.uniedu.support.processing.dto.standart.ChatDto;
 import com.uniedu.support.processing.dto.standart.TicketDto;
 import com.uniedu.support.processing.models.entities.Chat;
 import com.uniedu.support.processing.models.entities.Ticket;
 import com.uniedu.support.processing.models.enums.TicketStatus;
+import com.uniedu.support.processing.repositories.ChatRepository;
 import com.uniedu.support.processing.repositories.RoomRepository;
 import com.uniedu.support.processing.repositories.TicketRepository;
+import com.uniedu.support.processing.repositories.UserRepository;
 import com.uniedu.support.processing.services.interfaces.TeacherService;
 import com.uniedu.support.processing.services.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +31,8 @@ public class TeacherServiceImpl implements TeacherService {
     private final ModelMapper modelMapper;
     private final RoomRepository roomRepository;
     private final UserService<Long> userService;
+    private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
 
     @Transactional
     @Override
@@ -36,12 +43,14 @@ public class TeacherServiceImpl implements TeacherService {
                 .title(ticketCreateRequest.getTitle())
                 .description(ticketCreateRequest.getDescription())
                 .status(TicketStatus.IN_PROGRESS)
-                .room(roomRepository.findByName(ticketCreateRequest.getRoom()))
-                .assignedTo(userService.getUserForTicketAssigmentByRoomName(ticketCreateRequest.getRoom()))
-                .chat(new Chat())
+                .room(roomRepository.findByName(ticketCreateRequest.getRoomName()))
+                .creator(userRepository.findByUsername(userDetails.getUsername()).orElseThrow())
+                .assignedTo(userService.getUserForTicketAssigmentByRoomName(ticketCreateRequest.getRoomName()))
+                .chat(chatRepository.save(new Chat()))
                 .build();
 
         val savedTicket = ticketRepository.save(ticket);
+
         return modelMapper.map(savedTicket, TicketDto.class);
     }
 
@@ -59,5 +68,10 @@ public class TeacherServiceImpl implements TeacherService {
             }
         }
         throw new IllegalArgumentException("Ticket not found");
+    }
+
+    @Override
+    public List<TicketDto> getAllActiveTickets(UserDetails userDetails) {
+        return ticketRepository.findByStatusAndCreatorId(TicketStatus.IN_PROGRESS, userRepository.findByUsername(userDetails.getUsername()).orElseThrow().getId()).stream().map(e->modelMapper.map(e,TicketDto.class)).toList();
     }
 }

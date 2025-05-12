@@ -1,6 +1,8 @@
 package com.uniedu.support.processing.web.controllers;
 
 import com.uniedu.support.processing.dto.authEntities.MessageResponse;
+import com.uniedu.support.processing.dto.standart.TicketDto;
+import com.uniedu.support.processing.dto.standart.UserDto;
 import com.uniedu.support.processing.models.enums.WorkerStatus;
 import com.uniedu.support.processing.services.implementations.WorkerServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,5 +42,14 @@ public class WorkerController {
 
         workerServiceImpl.changeWorkerStatus(status, userDetails);
         return ResponseEntity.ok(new MessageResponse("User changed own status successfully!"));
+    }
+
+    @PreAuthorize("hasRole('WORKER')")
+    @GetMapping("/tickets")
+    public  ResponseEntity<List<TicketDto>> getAssignedTickets() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return ResponseEntity.ok(workerServiceImpl.getAssignedTickets(userDetails));
     }
 }

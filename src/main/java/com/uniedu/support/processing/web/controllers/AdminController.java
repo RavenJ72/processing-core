@@ -44,6 +44,7 @@ public class AdminController {
                 .body(userService.createUser(signUpRequest, userDetails));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/grouped-room-schedules")
     public ResponseEntity<List<GroupedRoomScheduleResponse>> getGroupedRoomSchedules(
             @RequestParam(value = "nextWeek", defaultValue = "false") boolean nextWeek){
@@ -52,6 +53,7 @@ public class AdminController {
         return ResponseEntity.ok(schedules);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update-schedule")
     public ResponseEntity<Void> updateSchedule(
             @RequestBody ScheduleUpdateDto updateDto,
@@ -60,11 +62,9 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/workers")
     public ResponseEntity<List<UserDto>> getWorkers(){
         return ResponseEntity.ok(userServiceImpl.findAllByRoleAsc(UserRoleType.WORKER));
     }
-
-
-
 }
