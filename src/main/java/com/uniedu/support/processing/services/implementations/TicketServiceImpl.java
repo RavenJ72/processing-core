@@ -71,7 +71,7 @@ public class TicketServiceImpl implements TicketService<Long> {
 
         if (ticketDto.getRoom() != null) {
             Room room = roomRepository.findById(ticketDto.getRoom().getId())
-                    .orElseThrow(() -> new RoomNotFoundException(ticketDto.getRoom().getId()));
+                    .orElseThrow(() -> new RoomNotFoundException(ticketDto.getRoom().getName()));
             ticket.setRoom(room);
         }
 

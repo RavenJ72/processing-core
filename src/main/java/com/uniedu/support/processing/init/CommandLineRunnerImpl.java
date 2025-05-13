@@ -7,8 +7,10 @@ import com.uniedu.support.processing.models.enums.UserRoleType;
 import com.uniedu.support.processing.models.enums.WorkerStatus;
 import com.uniedu.support.processing.repositories.*;
 import com.uniedu.support.processing.services.implementations.NotificationService;
+import com.uniedu.support.processing.services.implementations.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,7 @@ public class CommandLineRunnerImpl implements CommandLineRunner {
     private final ChatRepository chatRepository;
     private final PasswordEncoder passwordEncoder;
     private final NotificationService notificationService;
+    private final UserServiceImpl userService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -104,6 +107,8 @@ public class CommandLineRunnerImpl implements CommandLineRunner {
         createTicket("Протекает кран", "В лаборатории Lab2 протекает кран", teacher1, worker4, lab2);
 
         log.info("End data initialization !!!");
+
+
     }
 
     private User createTeacher(String firstName, String lastName, String username, Set<Room> rooms) {

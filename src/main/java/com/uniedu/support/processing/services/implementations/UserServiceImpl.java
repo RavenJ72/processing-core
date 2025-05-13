@@ -3,6 +3,8 @@ package com.uniedu.support.processing.services.implementations;
 import com.uniedu.support.processing.dto.authEntities.MessageResponse;
 import com.uniedu.support.processing.dto.authEntities.SignUpRequest;
 import com.uniedu.support.processing.dto.standart.UserDto;
+import com.uniedu.support.processing.exceptions.RoomNotFoundException;
+import com.uniedu.support.processing.models.entities.Room;
 import com.uniedu.support.processing.models.entities.User;
 import com.uniedu.support.processing.models.enums.UserRoleType;
 import com.uniedu.support.processing.models.enums.WorkerStatus;
@@ -89,8 +91,16 @@ public class UserServiceImpl implements UserService<Long> {
 
     @Override
     public User getUserForTicketAssigmentByRoomName(String roomName) {
-        val room = roomRepository.findByName(roomName);
-        val activeUser = userRepository.findAllByIsActive(WorkerStatus.ACTIVE).stream().filter(e -> e.getAssignedRooms().contains(room)).findFirst();
+        Room room = roomRepository.findByName(roomName)
+                .orElseThrow(() -> new RoomNotFoundException(roomName));
+
+        val activeUser = userRepository.findAllByIsActive(WorkerStatus.ACTIVE)
+                .stream().filter(user -> user.getRoles().stream().anyMatch(role -> role.getRole().equals(UserRoleType.WORKER)))
+                .filter(user -> user.getAssignedRooms().stream()
+                        .anyMatch(r -> r.getName().equals(room.getName()) &&
+                                r.getRoomGroup().equals(room.getRoomGroup())))
+                        .findFirst();
+
        if(activeUser.isPresent()){
            return activeUser.get();
        }else{

@@ -4,7 +4,7 @@ import com.uniedu.support.processing.dto.schedule.GroupedRoomScheduleResponse;
 import com.uniedu.support.processing.dto.schedule.ScheduleUpdateDto;
 import com.uniedu.support.processing.dto.standart.UserDto;
 import com.uniedu.support.processing.models.enums.UserRoleType;
-import com.uniedu.support.processing.services.implementations.ScheduleService;
+import com.uniedu.support.processing.services.implementations.ScheduleServiceImpl;
 import com.uniedu.support.processing.services.implementations.UserServiceImpl;
 import com.uniedu.support.processing.services.interfaces.UserService;
 import com.uniedu.support.processing.dto.authEntities.SignUpRequest;
@@ -20,7 +20,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ import java.util.Optional;
 public class AdminController {
 
     private final UserService<Long> userService;
-    private final ScheduleService scheduleService;
+    private final ScheduleServiceImpl scheduleServiceImpl;
     private final UserServiceImpl userServiceImpl;
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -49,7 +48,7 @@ public class AdminController {
     public ResponseEntity<List<GroupedRoomScheduleResponse>> getGroupedRoomSchedules(
             @RequestParam(value = "nextWeek", defaultValue = "false") boolean nextWeek){
 
-        List<GroupedRoomScheduleResponse> schedules = scheduleService.getGroupedRoomSchedulesForWeek(nextWeek);
+        List<GroupedRoomScheduleResponse> schedules = scheduleServiceImpl.getGroupedRoomSchedulesForWeek(nextWeek);
         return ResponseEntity.ok(schedules);
     }
 
@@ -58,7 +57,7 @@ public class AdminController {
     public ResponseEntity<Void> updateSchedule(
             @RequestBody ScheduleUpdateDto updateDto,
             @RequestHeader("Authorization") String token) {
-        scheduleService.updateSchedule(updateDto, token);
+        scheduleServiceImpl.updateSchedule(updateDto, token);
         return ResponseEntity.ok().build();
     }
 

@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ScheduleService {
+public class ScheduleServiceImpl {
 
     private final RoomRepository roomRepository;
     private final WorkerScheduleRepository workerScheduleRepository;

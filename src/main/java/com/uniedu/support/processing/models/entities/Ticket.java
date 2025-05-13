@@ -6,6 +6,8 @@ import com.uniedu.support.processing.models.enums.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
@@ -35,5 +37,8 @@ public class Ticket extends TimestampedEntity {
     @ManyToOne
     @JoinColumn(name = "assigned_to_id")
     private User assignedTo;
+
+    @OneToMany
+    private List<FileMetadata> files;
 
 }

@@ -13,62 +13,55 @@ java {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    // Spring Boot
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // Логирование (Logstash)
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    // Документация API
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     // База данных
     runtimeOnly 'org.postgresql:postgresql'
+
+    // ModelMapper
+    implementation 'org.modelmapper:modelmapper:3.1.0'
+
+    // JSON
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // MinIO
+    implementation 'io.minio:minio:8.5.7'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-    // ModelMapper (для маппинга моделей)
-    implementation 'org.modelmapper:modelmapper:3.1.0'
-
-    // Spring Security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
-
-    // Spring Boot DevTools (только в runtime)
-//    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
-
-    // Spring Boot Configuration Processor
-//    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
-
-    // Spring Boot Docker Compose (опционально)
-//    runtimeOnly 'org.springframework.boot:spring-boot-docker-compose'
-
-    // Валидация
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // Hibernate Validator (опционально, если нужен полный контроль)
     implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
 
-
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
-    // JSON Web Token (JWT)
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-    // Springdoc OpenAPI (для генерации документации API)
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-
-    // Spring Boot Starter для RabbitMQ
-    implementation("org.springframework.boot:spring-boot-starter-amqp")
-
-    // Для работы с JSON
-    implementation("com.fasterxml.jackson.core:jackson-databind")
+    // DevTools (для разработки, не добавляй в продакшн)
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }

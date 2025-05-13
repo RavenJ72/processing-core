@@ -1,4 +1,4 @@
-package com.uniedu.support.processing.web.controllers;
+package com.uniedu.support.processing.web.controllers.ws;
 
 import com.uniedu.support.processing.dto.standart.ChatMessageDto;
 
@@ -6,7 +6,6 @@ import com.uniedu.support.processing.services.implementations.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 

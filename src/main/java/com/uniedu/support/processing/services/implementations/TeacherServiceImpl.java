@@ -43,7 +43,7 @@ public class TeacherServiceImpl implements TeacherService {
                 .title(ticketCreateRequest.getTitle())
                 .description(ticketCreateRequest.getDescription())
                 .status(TicketStatus.IN_PROGRESS)
-                .room(roomRepository.findByName(ticketCreateRequest.getRoomName()))
+                .room(roomRepository.findByName(ticketCreateRequest.getRoomName()).orElseThrow())
                 .creator(userRepository.findByUsername(userDetails.getUsername()).orElseThrow())
                 .assignedTo(userService.getUserForTicketAssigmentByRoomName(ticketCreateRequest.getRoomName()))
                 .chat(chatRepository.save(new Chat()))
