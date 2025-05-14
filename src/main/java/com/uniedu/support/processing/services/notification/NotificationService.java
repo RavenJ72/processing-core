@@ -1,4 +1,4 @@
-package com.uniedu.support.processing.services.implementations;
+package com.uniedu.support.processing.services.notification;
 
 import com.uniedu.support.processing.dto.notifications.Notification;
 import com.uniedu.support.processing.dto.notifications.NotificationType;
@@ -13,7 +13,7 @@ import java.util.Map;
 public class NotificationService {
     private final RabbitTemplate rabbitTemplate;
 
-    public void sendNewMessageNotification(String chatId, String messageId, Long recipientId) {
+    public void sendNewMessageNotification(Long chatId, Long messageId, Long recipientId) {
         Notification notification = new Notification(
                 NotificationType.NEW_MESSAGE,
                 recipientId.toString(),

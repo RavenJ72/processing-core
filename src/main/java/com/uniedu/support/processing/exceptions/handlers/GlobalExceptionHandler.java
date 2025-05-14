@@ -1,5 +1,7 @@
-package com.uniedu.support.processing.exceptions;
+package com.uniedu.support.processing.exceptions.handlers;
 
+import com.uniedu.support.processing.dto.ErrorResponse;
+import com.uniedu.support.processing.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

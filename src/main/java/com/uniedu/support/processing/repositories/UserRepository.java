@@ -17,11 +17,14 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
-    Boolean existsByEmail(String email);
+
     Boolean existsByUsername(String username);
+
     List<User> findAllByIsActive(WorkerStatus status);
 
     @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r.role = :roleType")
     List<User> findByRoleType(@Param("roleType") UserRoleType roleType);
+
+    List<User> findByAssignedRooms_Id(Long roomId);
 }
 

@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -79,7 +80,11 @@ public class WebSecurityConfig {
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:54771"));
+//                    config.setAllowedOrigins(List.of("http://localhost:*"));
+                    config.setAllowedOriginPatterns(Arrays.asList(
+                            "http://localhost:[*]",
+                            "http://127.0.0.1:[*]"
+                    ));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type", "x-auth-token"));
                     config.setExposedHeaders(List.of("x-auth-token"));

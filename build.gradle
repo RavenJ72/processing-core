@@ -64,4 +64,9 @@ dependencies {
 
     // DevTools (для разработки, не добавляй в продакшн)
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.lettuce:lettuce-core'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 }

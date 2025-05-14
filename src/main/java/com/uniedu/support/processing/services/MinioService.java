@@ -1,9 +1,6 @@
-package com.uniedu.support.processing.services.implementations;
+package com.uniedu.support.processing.services;
 
-import com.uniedu.support.processing.config.MinioConfig;
-import io.minio.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,11 +10,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.GetObjectArgs;
 import io.minio.RemoveObjectArgs;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
 import java.util.UUID;
 
 @Service

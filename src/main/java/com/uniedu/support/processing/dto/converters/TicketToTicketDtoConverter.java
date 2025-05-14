@@ -1,4 +1,4 @@
-package com.uniedu.support.processing.dto;
+package com.uniedu.support.processing.dto.converters;
 
 import com.uniedu.support.processing.dto.standart.ChatDto;
 import com.uniedu.support.processing.dto.standart.RoomDto;
@@ -8,7 +8,6 @@ import com.uniedu.support.processing.models.entities.Ticket;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
-import org.springframework.stereotype.Component;
 
 
 public class TicketToTicketDtoConverter implements Converter<Ticket, TicketDto> {
@@ -25,6 +24,7 @@ public class TicketToTicketDtoConverter implements Converter<Ticket, TicketDto> 
 
         // Преобразование Ticket в TicketDto
         TicketDto ticketDto = new TicketDto();
+        ticketDto.setId(ticket.getId());
         ticketDto.setTitle(ticket.getTitle());
         ticketDto.setDescription(ticket.getDescription());
         ticketDto.setStatus(ticket.getStatus());

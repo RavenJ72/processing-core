@@ -6,6 +6,11 @@ import com.uniedu.support.processing.dto.standart.TicketDto;
 import com.uniedu.support.processing.models.enums.TicketStatus;
 import com.uniedu.support.processing.services.implementations.TicketServiceImpl;
 import com.uniedu.support.processing.services.interfaces.TeacherService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +28,18 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/teacher")
+@Tag(name = "Преподаватель", description = "Эндпоинты для преподавателя: работа с тикетами и кабинетами")
 public class TeacherController {
 
     private final TeacherService teacherService;
     private final TicketServiceImpl ticketServiceImpl;
 
     @PreAuthorize("hasRole('TEACHER')")
+    @Operation(
+            summary = "Создание тикета",
+            description = "Создаёт новый тикет от преподавателя на основании запроса"
+    )
+    @ApiResponse(responseCode = "201", description = "Тикет успешно создан")
     @PostMapping("/ticket")
     public ResponseEntity<TicketDto> createTicket(
             @Valid @RequestBody TicketCreateRequest request) {
@@ -41,10 +52,14 @@ public class TeacherController {
     }
 
     @PreAuthorize("hasRole('TEACHER')")
+    @Operation(
+            summary = "Изменить статус тикета",
+            description = "Позволяет преподавателю изменить статус собственного тикета"
+    )
     @PutMapping("/ticket/{ticketId}/status")
     public ResponseEntity<Void> changeTicketStatus(
-            @PathVariable Long ticketId,
-            @RequestParam TicketStatus status) {
+            @Parameter(description = "ID тикета") @PathVariable Long ticketId,
+            @Parameter(description = "Новый статус тикета", in = ParameterIn.QUERY) @RequestParam TicketStatus status) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -53,11 +68,19 @@ public class TeacherController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Получить список доступных кабинетов",
+            description = "Возвращает список кабинетов, доступных для создания тикета"
+    )
     @GetMapping("/rooms")
     public ResponseEntity<List<RoomDto>> getAvailableRooms() {
         return ResponseEntity.ok(ticketServiceImpl.getAvailableRooms());
     }
 
+    @Operation(
+            summary = "Получить активные тикеты преподавателя",
+            description = "Возвращает все активные тикеты, созданные текущим преподавателем"
+    )
     @GetMapping("/ticket")
     public ResponseEntity<List<TicketDto>> getAvailableTickets() {
 

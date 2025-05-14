@@ -1,10 +1,8 @@
 package com.uniedu.support.processing.services.interfaces;
 
-import com.uniedu.support.processing.dto.standart.CreateTicketDto;
 import com.uniedu.support.processing.dto.standart.RoomDto;
 import com.uniedu.support.processing.dto.standart.TicketDto;
 import com.uniedu.support.processing.dto.standart.TicketUpdateDto;
-import com.uniedu.support.processing.models.enums.TicketStatus;
 
 import java.util.List;
 

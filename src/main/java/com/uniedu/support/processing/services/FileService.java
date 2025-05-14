@@ -1,4 +1,4 @@
-package com.uniedu.support.processing.services.implementations;
+package com.uniedu.support.processing.services;
 
 import com.uniedu.support.processing.dto.standart.FileDto;
 import com.uniedu.support.processing.models.entities.FileMetadata;
@@ -26,7 +26,7 @@ public class FileService {
 
     // Загрузка файла
     @Transactional
-    public FileMetadata uploadFile(MultipartFile file, Long ticketId, FileType fileType) {
+    public FileDto uploadFile(MultipartFile file, Long ticketId, FileType fileType) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
@@ -42,7 +42,7 @@ public class FileService {
                 .ticket(ticket)
                 .build();
 
-        return fileMetadataRepository.save(fileMetadata);
+        return modelMapper.map(fileMetadataRepository.save(fileMetadata), FileDto.class);
     }
 
     // Скачивание файла

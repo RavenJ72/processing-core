@@ -1,7 +1,7 @@
 package com.uniedu.support.processing.web.controllers;
 
 import com.uniedu.support.processing.dto.standart.ChatMessageDto;
-import com.uniedu.support.processing.services.implementations.ChatService;
+import com.uniedu.support.processing.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

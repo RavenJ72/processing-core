@@ -1,10 +1,13 @@
-package com.uniedu.support.processing.exceptions;  // Тот же пакет
+package com.uniedu.support.processing.dto;  // Тот же пакет
+
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class ErrorResponse {
-    private String message;
-    private int status;
+    private final String message;
+    private final int status;
     private List<String> details;
 
     public ErrorResponse(String message, int status) {
@@ -17,8 +20,4 @@ public class ErrorResponse {
         this.status = status;
         this.details = details;
     }
-
-    public String getMessage() { return message; }
-    public int getStatus() { return status; }
-    public List<String> getDetails() { return details; }
 }

@@ -13,4 +13,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findByName(String name);
 
     List<Room> findByRoomGroup(RoomGroup roomGroup);
+    boolean existsByName(String name);
 }

@@ -1,7 +1,6 @@
-package com.uniedu.support.processing.services.implementations;
+package com.uniedu.support.processing.services.notification;
 
 import com.uniedu.support.processing.config.RabbitMQConfig;
-import com.uniedu.support.processing.dto.createRequests.TicketCreateRequest;
 import com.uniedu.support.processing.dto.notifications.Notification;
 import com.uniedu.support.processing.dto.notifications.NotificationType;
 import com.uniedu.support.processing.models.entities.Chat;
@@ -11,6 +10,7 @@ import com.uniedu.support.processing.models.entities.ViolationReport;
 import com.uniedu.support.processing.models.enums.FileType;
 import com.uniedu.support.processing.models.enums.TicketStatus;
 import com.uniedu.support.processing.repositories.*;
+import com.uniedu.support.processing.services.implementations.TeacherServiceImpl;
 import com.uniedu.support.processing.services.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,6 @@ import lombok.val;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -71,5 +70,6 @@ public class NotificationConsumer {
                 .build();
 
         notificationService.sendViolationRecordedNotification(violationReportRepository.save(violationReport).getId(), savedTicket.getAssignedTo().getId());
+        notificationService.sendTicketAssignedNotification(savedTicket.getId(),savedTicket.getAssignedTo().getId());
     }
 }

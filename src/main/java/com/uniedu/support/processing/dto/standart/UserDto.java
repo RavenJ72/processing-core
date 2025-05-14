@@ -1,5 +1,6 @@
 package com.uniedu.support.processing.dto.standart;
 
+import com.uniedu.support.processing.dto.base.BaseDTO;
 import com.uniedu.support.processing.dto.base.TimestampedDTO;
 import com.uniedu.support.processing.models.entities.Role;
 import com.uniedu.support.processing.models.entities.Room;
@@ -17,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Builder
-public class UserDto extends TimestampedDTO {
+public class UserDto extends BaseDTO {
 //    @NotNull(message = "First name cannot be null!")
 //    @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "First name must start with a capital letter and contain only letters!")
     private String firstName;

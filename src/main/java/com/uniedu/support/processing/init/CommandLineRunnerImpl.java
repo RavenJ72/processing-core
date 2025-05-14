@@ -6,19 +6,16 @@ import com.uniedu.support.processing.models.enums.TicketStatus;
 import com.uniedu.support.processing.models.enums.UserRoleType;
 import com.uniedu.support.processing.models.enums.WorkerStatus;
 import com.uniedu.support.processing.repositories.*;
-import com.uniedu.support.processing.services.implementations.NotificationService;
+import com.uniedu.support.processing.services.notification.NotificationService;
 import com.uniedu.support.processing.services.implementations.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -75,36 +72,20 @@ public class CommandLineRunnerImpl implements CommandLineRunner {
 
         // Преподаватели (несколько)
         User teacher1 = createTeacher("Ivan", "Ivanov", "teacher1", Set.of(room101, room201, lab1));
-        User teacher2 = createTeacher("Petr", "Petrov", "teacher2", Set.of(room102, room202, lab2));
-        User teacher3 = createTeacher("Anna", "Sidorova", "teacher3", Set.of(room103, room203, comp1));
+
 
         // Работники (значительно больше)
         User worker1 = createWorker("Sergey", "Petrov", "worker1", WorkerStatus.ACTIVE,
-                Set.of(room101, room102, room201, comp1));
-        User worker2 = createWorker("Elena", "Smirnova", "worker2", WorkerStatus.ACTIVE,
-                Set.of(room103, room202, room203, lab1));
-        User worker3 = createWorker("Dmitry", "Sidorov", "worker3", WorkerStatus.ACTIVE,
-                Set.of(room301, room302, comp2));
-        User worker4 = createWorker("Olga", "Kuznetsova", "worker4", WorkerStatus.ACTIVE,
-                Set.of(room401, lab2));
-        User worker5 = createWorker("Alexey", "Volkov", "worker5", WorkerStatus.ACTIVE,
-                Set.of(room101, room201, room301));
-        User worker6 = createWorker("Maria", "Fedorova", "worker6", WorkerStatus.ACTIVE,
-                Set.of(room102, room202, room302));
+                Set.of(room101, room102));
+
 
         // Создаем насыщенное расписание (на всю неделю)
-        createWorkerSchedules(worker1, LocalDate.now(), LocalTime.of(8, 0), LocalTime.of(16, 0));
-        createWorkerSchedules(worker2, LocalDate.now().plusDays(1), LocalTime.of(9, 0), LocalTime.of(17, 0));
-        createWorkerSchedules(worker3, LocalDate.now().plusDays(2), LocalTime.of(10, 0), LocalTime.of(18, 0));
-        createWorkerSchedules(worker4, LocalDate.now().plusDays(3), LocalTime.of(8, 30), LocalTime.of(16, 30));
-        createWorkerSchedules(worker5, LocalDate.now().plusDays(4), LocalTime.of(7, 30), LocalTime.of(15, 30));
-        createWorkerSchedules(worker6, LocalDate.now().plusDays(5), LocalTime.of(11, 0), LocalTime.of(19, 0));
+//        createWorkerSchedules(worker1, LocalDate.now(), LocalTime.of(8, 0), LocalTime.of(16, 0));
+
 
         // Создаем несколько тикетов
         createTicket("Не работает проектор", "В аудитории 101 не включается проектор", teacher1, worker1, room101);
-        createTicket("Сломан стул", "В аудитории 202 сломан стул", teacher2, worker2, room202);
-        createTicket("Не работает компьютер", "В компьютерном классе Comp1 не включается ПК", teacher3, worker3, comp1);
-        createTicket("Протекает кран", "В лаборатории Lab2 протекает кран", teacher1, worker4, lab2);
+
 
         log.info("End data initialization !!!");
 

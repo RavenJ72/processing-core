@@ -1,6 +1,5 @@
-package com.uniedu.support.processing.dto.standart;
+package com.uniedu.support.processing.dto.createRequests;
 
-import com.uniedu.support.processing.models.enums.TicketStatus;
 import lombok.Data;
 
 @Data

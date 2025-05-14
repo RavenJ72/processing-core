@@ -10,12 +10,16 @@ import com.uniedu.support.processing.repositories.ChatRepository;
 import com.uniedu.support.processing.repositories.RoomRepository;
 import com.uniedu.support.processing.repositories.TicketRepository;
 import com.uniedu.support.processing.repositories.UserRepository;
+import com.uniedu.support.processing.services.interfaces.RoomService;
 import com.uniedu.support.processing.services.interfaces.TeacherService;
 import com.uniedu.support.processing.services.interfaces.UserService;
+import com.uniedu.support.processing.services.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +37,11 @@ public class TeacherServiceImpl implements TeacherService {
     private final UserService<Long> userService;
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     @Override
+    @CacheEvict(value = "teacherTickets", key = "#userDetails.username")
     public TicketDto createTicket(TicketCreateRequest ticketCreateRequest, UserDetails userDetails) {
         log.info("Teacher create ticket request. Initiator - {}", userDetails.getUsername());
 
@@ -50,11 +56,13 @@ public class TeacherServiceImpl implements TeacherService {
                 .build();
 
         val savedTicket = ticketRepository.save(ticket);
+        notificationService.sendTicketAssignedNotification(savedTicket.getId(),savedTicket.getAssignedTo().getId());
 
         return modelMapper.map(savedTicket, TicketDto.class);
     }
 
     @Override
+    @CacheEvict(value = "teacherTickets", key = "#userDetails.username")
     public void changeTicketStatus(Long ticketId, TicketStatus ticketStatus, UserDetails userDetails) {
         log.info("Teacher change ticket status request. Initiator - {}", userDetails.getUsername());
         val optionalTicket = ticketRepository.findById(ticketId);
@@ -71,6 +79,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    @Cacheable(value = "teacherTickets", key = "#userDetails.username")
     public List<TicketDto> getAllActiveTickets(UserDetails userDetails) {
         return ticketRepository.findByStatusAndCreatorId(TicketStatus.IN_PROGRESS, userRepository.findByUsername(userDetails.getUsername()).orElseThrow().getId()).stream().map(e->modelMapper.map(e,TicketDto.class)).toList();
     }

@@ -1,6 +1,6 @@
 package com.uniedu.support.processing.config;
 
-import com.uniedu.support.processing.dto.TicketToTicketDtoConverter;
+import com.uniedu.support.processing.dto.converters.TicketToTicketDtoConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

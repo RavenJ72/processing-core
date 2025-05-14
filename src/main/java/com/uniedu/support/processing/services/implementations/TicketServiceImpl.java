@@ -1,16 +1,13 @@
 package com.uniedu.support.processing.services.implementations;
 
-import com.uniedu.support.processing.dto.standart.CreateTicketDto;
 import com.uniedu.support.processing.dto.standart.RoomDto;
 import com.uniedu.support.processing.dto.standart.TicketDto;
 import com.uniedu.support.processing.dto.standart.TicketUpdateDto;
 import com.uniedu.support.processing.exceptions.RoomNotFoundException;
 import com.uniedu.support.processing.exceptions.TicketNotFoundException;
-import com.uniedu.support.processing.models.entities.Chat;
 import com.uniedu.support.processing.models.entities.Room;
 import com.uniedu.support.processing.models.entities.Ticket;
 import com.uniedu.support.processing.models.enums.TicketStatus;
-import com.uniedu.support.processing.repositories.ChatRepository;
 import com.uniedu.support.processing.repositories.RoomRepository;
 import com.uniedu.support.processing.repositories.TicketRepository;
 import com.uniedu.support.processing.services.interfaces.TicketService;

@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,31 +32,19 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
-
-
 
 
         String requestURI = request.getRequestURI();
         // ✅ Пропускаем ws для запросов к /ws-chat/**
-        if(requestURI.startsWith("/ws-chat/")){
+        if (requestURI.startsWith("/ws-chat/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // ✅ Пропускаем аутентификацию для запросов к /api/auth/**
         if (requestURI.startsWith("/api/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-// ✅ Пропустить фильтр для swagger и авторизации
-        if (requestURI.startsWith("/v3/api-docs/") ||
-                requestURI.startsWith("/swagger-ui/") ||
-                requestURI.startsWith("/swagger-resources/") ||
-                requestURI.startsWith("/webjars/") ||
-                requestURI.startsWith("/v3/")){
             filterChain.doFilter(request, response);
             return;
         }

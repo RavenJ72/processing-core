@@ -11,6 +11,7 @@ import com.uniedu.support.processing.models.enums.RoomGroup;
 import com.uniedu.support.processing.repositories.RoomRepository;
 import com.uniedu.support.processing.repositories.UserRepository;
 import com.uniedu.support.processing.repositories.WorkerScheduleRepository;
+import com.uniedu.support.processing.services.interfaces.ScheduleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ScheduleServiceImpl {
+public class ScheduleServiceImpl implements ScheduleService {
 
     private final RoomRepository roomRepository;
     private final WorkerScheduleRepository workerScheduleRepository;
@@ -60,18 +61,29 @@ public class ScheduleServiceImpl {
             new TimeRange("20:00", "21:20")
     );
 
+    @Override
     public List<GroupedRoomScheduleResponse> getGroupedRoomSchedulesForWeek(boolean nextWeek) {
+        log.info("Fetching grouped room schedules for {} week", nextWeek ? "next" : "current");
+
         LocalDate today = LocalDate.now();
         LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
-        if (nextWeek) startOfWeek = startOfWeek.plusWeeks(1);
+        if (nextWeek) {
+            startOfWeek = startOfWeek.plusWeeks(1);
+            log.debug("Adjusted start of week to next week: {}", startOfWeek);
+        }
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
         List<WorkerSchedule> schedules = workerScheduleRepository.findAllByDateBetweenWithUsersAndRooms(startOfWeek, endOfWeek);
+        log.debug("Found {} schedule entries for period {} to {}", schedules.size(), startOfWeek, endOfWeek);
+
         List<Room> rooms = roomRepository.findAll();
+        log.debug("Found {} rooms in total", rooms.size());
 
         List<GroupedRoomScheduleResponse> result = new ArrayList<>();
 
         for (RoomGroup group : RoomGroup.values()) {
+            log.debug("Processing room group: {}", group);
+
             List<Room> groupRooms = rooms.stream()
                     .filter(r -> r.getRoomGroup() == group)
                     .toList();
@@ -79,6 +91,7 @@ public class ScheduleServiceImpl {
             List<RoomDailySchedule> roomSchedules = new ArrayList<>();
 
             for (Room room : groupRooms) {
+                log.debug("Processing room: {}", room.getName());
                 Map<String, RoomScheduleCell> timeSlotMap = new LinkedHashMap<>();
 
                 for (TimeRange slot : STANDARD_TIME_SLOTS) {
@@ -107,36 +120,38 @@ public class ScheduleServiceImpl {
             result.add(new GroupedRoomScheduleResponse(group, roomSchedules));
         }
 
+        log.info("Successfully compiled schedules for {} room groups", result.size());
         return result;
     }
 
+    @Override
     @Transactional
     public void updateSchedule(ScheduleUpdateDto updateDto, String token) {
-        // 1. Валидация входных данных
+        log.info("Starting schedule update process");
         validateUpdateDto(updateDto);
 
-        // 2. Находим работника (если указан)
         User worker = resolveWorker(updateDto.workerId());
-
-        // 3. Находим все кабинеты в указанной группе
         List<Room> roomsInGroup = roomRepository.findByRoomGroup(updateDto.roomGroup());
+
         if (roomsInGroup.isEmpty()) {
             throw new EntityNotFoundException("No rooms found in group: " + updateDto.roomGroup());
         }
 
-        // 4. Парсим временной слот
         TimeSlot timeSlot = parseTimeSlot(updateDto.timeSlot());
 
-        // 5. Получаем дату (ближайший день недели)
-        LocalDate date = resolveDateForDayOfWeek(updateDto.dayOfWeek());
+        // Определяем дату - приоритет у specificDate
+        LocalDate date = updateDto.specificDate() != null
+                ? updateDto.specificDate()
+                : resolveDateForDayOfWeek(updateDto.dayOfWeek());
 
-        // 6. Обновляем назначенные кабинеты работника (если работник указан)
+        log.debug("Using date: {}", date);
+
         if (worker != null) {
             updateWorkerAssignedRooms(worker, roomsInGroup);
         }
 
-        // 7. Для каждого кабинета в группе обновляем расписание
         updateSchedulesForRooms(worker, roomsInGroup, date, timeSlot);
+        log.info("Schedule update completed successfully");
     }
 
     private void validateUpdateDto(ScheduleUpdateDto updateDto) {
@@ -146,8 +161,10 @@ public class ScheduleServiceImpl {
         if (updateDto.timeSlot() == null || updateDto.timeSlot().isBlank()) {
             throw new IllegalArgumentException("Time slot must not be empty");
         }
-        if (updateDto.dayOfWeek() == null || updateDto.dayOfWeek().isBlank()) {
-            throw new IllegalArgumentException("Day of week must not be empty");
+        // Проверяем что указан хотя бы один из вариантов
+        if ((updateDto.dayOfWeek() == null || updateDto.dayOfWeek().isBlank())
+                && updateDto.specificDate() == null) {
+            throw new IllegalArgumentException("Either dayOfWeek or specificDate must be provided");
         }
     }
 
